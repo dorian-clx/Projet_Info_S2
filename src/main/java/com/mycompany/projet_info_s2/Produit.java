@@ -14,12 +14,14 @@ public class Produit {
     //attributs
     private int codePro;
     private String desPro;
+    private boolean isActive; //attribut pour indiquer si le produit est actif
 
     
     //constructeur 
     public Produit(int codePro, String desPro) {
         this.codePro = codePro;
         this.desPro = desPro;
+        this.isActive = true;  // Le produit est actif par défaut
     }
     //getters setters 
     public int getCodePro() {
@@ -38,10 +40,29 @@ public class Produit {
         this.desPro = desPro;
     }
     
+    public boolean isActive() {
+        return isActive;
+    }
+    
+    // Méthode pour marquer le produit comme supprimé
+    public void supprimerProduit() {
+        this.isActive = false;
+        System.out.println("Le produit " + this.codePro + " a été supprimé.");
+    }
+    
     //méthode afficher produit 
     public String afficherProduit (){
-        return "Produit [code produit : " + this.codePro + 
-               ", désignation produit : " + this.desPro + "]";
+        if (isActive) {
+            return "Produit [code produit : " + this.codePro + ", désignation produit : " + this.desPro + "]";
+        } else {
+            return "Produit supprimé.";
+        }
+    }
+    
+    //méthode ajouter produit 
+    public void modifierProduit(int newCodePro, String newDesPro) {
+        this.codePro = newCodePro;
+        this.desPro = newDesPro;
     }
           
 }
