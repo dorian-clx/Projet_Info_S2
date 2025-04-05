@@ -17,6 +17,7 @@ public class Machine {
     private double cout;
     private float x;
     private float y;
+    private boolean deleted;  // Indicateur pour savoir si la machine est supprimée
     
     
     // Getters et Setters
@@ -80,16 +81,40 @@ public class Machine {
     }
     
     
-    // Méthodes
+    // Méthodes pour afficher les informations de la machine
     public String afficheMachine() {
+        if (deleted) {
+            return "La machine " + refMachine + " a été supprimée.";
+        } else {
             return "Machine [refMachine = " + this.getRefMachine() + 
-                              ", dMachine = " + this.getdMachine() + 
-                              ", type = " + this.getType() + 
-                              ", cout = " + this.getCout() + 
-                              ", x = " + this.getX() + 
-                              ", y = " + this.getY() + "]";
+                   ", dMachine = " + this.getdMachine() + 
+                   ", type = " + this.getType() + 
+                   ", cout = " + this.getCout() + 
+                   ", x = " + this.getX() + 
+                   ", y = " + this.getY() + "]";
         }
-    
+    }
+
+    // Méthode pour supprimer une machine
+    public void supprimerMachine() {
+        this.deleted = true;
+        System.out.println("La machine " + this.refMachine + " a été supprimée.");
+    }
+
+    // Méthode pour modifier une machine
+    public void modifierMachine(String newRefMachine, String newDMachine, String newType, double newCout, float newX, float newY) {
+        if (!deleted) {
+            this.refMachine = newRefMachine;
+            this.dMachine = newDMachine;
+            this.type = newType;
+            this.cout = newCout;
+            this.x = newX;
+            this.y = newY;
+            System.out.println("Les informations de la machine ont été mises à jour.");
+        } else {
+            System.out.println("Impossible de modifier la machine, elle a été supprimée.");
+        }
+    }
     
     
 }
