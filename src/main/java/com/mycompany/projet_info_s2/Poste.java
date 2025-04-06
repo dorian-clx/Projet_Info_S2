@@ -67,19 +67,28 @@ public class Poste {
     }
 
     // Méthode pour afficher le poste et ses machines
-    public void affichePoste() {
+    public String affichePoste() {
         if (!isDeleted) {
-            System.out.println("Poste [Code : " + refPoste + ", Description : " + desPoste + "]");
-            System.out.println("Machines dans le poste : ");
-            if (machines.isEmpty()) {
-                System.out.println("Aucune machine associée à ce poste.");
-            } else {
-                for (Machine machine : machines) {
-                    System.out.println("- " + machine.getRefMachine());
+            StringBuilder sb = new StringBuilder();
+            sb.append("Poste [refPoste = ").append(refPoste)
+            .append(", dPoste = ").append(desPoste)
+            .append(", Machines: ");
+        
+        if (machines.isEmpty()) {
+            sb.append("Aucune machine assignée.");
+        } 
+        else {
+            for (Machine m : machines) {  // Affichage des machines associées au poste
+                if (!m.isDeleted()) {
+                    sb.append("\n - ").append(m.afficheMachine());
                 }
             }
-        } else {
-            System.out.println("Le poste a été supprimé.");
+        }
+            sb.append("]");
+            return sb.toString(); // Retourne la chaîne de caractères formée
+        } 
+        else {
+            return "Le poste " + refPoste + " a été supprimé."; // Retourne un message sous forme de chaîne si le poste est supprimé
         }
     }
 
