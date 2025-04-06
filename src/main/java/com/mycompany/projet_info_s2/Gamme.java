@@ -73,15 +73,75 @@ public class Gamme {
         return total;
     }
     
-    public String afficherGamme() {
-        StringBuilder sb = new StringBuilder();
-        sb.append("Gamme ID: ").append(idGamme).append(" (Produit: ").append(produit.getDesPro()).append(")\n");
-        sb.append("Opérations :\n");
-        for (Operation op : operations) {
-            sb.append(" - ").append(op.afficheOperation()).append("\n");
+    public boolean peutEtreRealisee() {
+    for (Operation op : operations) {
+        if (op.getPosteAssocie().getIsDeleted()) {
+            return false;
         }
-        sb.append("Durée totale : ").append(getDureeTotale()).append("h\n");
-        sb.append("Coût total : ").append(getCoutTotal()).append("€\n");
-        return sb.toString();
     }
+    return true;
+}
+
+public String getStatusRealisation() {
+    StringBuilder sb = new StringBuilder();
+    int operationsNonRealisables = 0;
+    int totalOperations = operations.size();
+    
+    sb.append("Statut de réalisation:\n");
+    
+    for (Operation op : operations) {
+        if (op.getPosteAssocie().getIsDeleted()) {
+            sb.append(" - Opération #").append(op.getOrdre())
+              .append(" : NON RÉALISABLE (poste supprimé)\n");
+            operationsNonRealisables++;
+        } else {
+            sb.append(" - Opération #").append(op.getOrdre())
+              .append(" : Réalisable\n");
+        }
+    }
+    
+    // Verdict final avec plus de détails
+    if (operationsNonRealisables == 0) {
+        sb.append("Verdict: Gamme entièrement réalisable");
+    } else if (operationsNonRealisables == totalOperations) {
+        sb.append("Verdict: Gamme totalement non réalisable");
+    } else {
+        sb.append("Verdict: Gamme partiellement réalisable (")
+          .append(totalOperations - operationsNonRealisables)
+          .append(" opérations sur ")
+          .append(totalOperations)
+          .append(" sont réalisables)");
+    }
+    
+    return sb.toString();
+}
+
+public double getPourcentageRealisation() {
+    if (operations.isEmpty()) {
+        return 0.0;
+    }
+    
+    int operationsRealisables = 0;
+    for (Operation op : operations) {
+        if (!op.getPosteAssocie().getIsDeleted()) {
+            operationsRealisables++;
+        }
+    }
+    
+    return (double) operationsRealisables / operations.size() * 100;
+}
+
+    public String afficherGamme() {
+    StringBuilder sb = new StringBuilder();
+    sb.append("Gamme ID: ").append(idGamme).append(" (Produit: ").append(produit.getDesPro()).append(")\n");
+    sb.append("Opérations :\n");
+    for (Operation op : operations) {
+        sb.append(" - ").append(op.afficheOperation()).append("\n");
+    }
+    sb.append("Durée totale : ").append(getDureeTotale()).append("h\n");
+    sb.append("Coût total : ").append(getCoutTotal()).append("€\n");
+    sb.append("Pourcentage de réalisation : ").append(String.format("%.1f", getPourcentageRealisation())).append("%\n");
+    sb.append("\n").append(getStatusRealisation()).append("\n");
+    return sb.toString();
+}
 }
