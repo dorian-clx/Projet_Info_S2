@@ -11,7 +11,7 @@ import java.util.List;
  *
  * @author doriancacheleux
  */
-public class Poste {
+public class Poste{
     //attributs
     private int refPoste;
     private String desPoste;
@@ -115,12 +115,18 @@ public class Poste {
         }
     }
 
-    // Méthode pour supprimer un poste (marquer comme supprimé)
+    
+    public String getIdentifiant() {
+        return "Poste-" + refPoste;
+    }
+
     public void supprimerPoste() {
         isDeleted = true;
-        System.out.println("Le poste " + desPoste + " a été supprimé.");
+        // Suppression de toutes les machines du poste
+        for (Machine machine : machines) {
+            machine.supprimerMachine();
+        }
     }
-    
     
 }
    
