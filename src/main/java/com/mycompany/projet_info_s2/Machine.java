@@ -18,6 +18,7 @@ public class Machine {
     private float x;
     private float y;
     private boolean deleted;  // Indicateur pour savoir si la machine est supprimée
+    private String etat;
     
     
     // Getters et Setters
@@ -68,6 +69,15 @@ public class Machine {
     public void setY(float y) {
         this.y = y;
     }
+
+    public String getEtat() {
+        return etat;
+    }
+
+    public void setEtat(String etat) {
+        this.etat = etat;
+    }
+    
     
     
     // Constructeur
@@ -78,6 +88,8 @@ public class Machine {
         this.cout = cout;
         this.x = x;
         this.y = y;
+        this.etat = "opérationnel"; // état par défaut
+        this.deleted = false;
     }
     
     
@@ -91,7 +103,8 @@ public class Machine {
                    ", type = " + this.getType() + 
                    ", cout = " + this.getCout() + 
                    ", x = " + this.getX() + 
-                   ", y = " + this.getY() + "]";
+                   ", y = " + this.getY() +
+                   ", état = " + this.getEtat() + "]";
         }
     }
 
@@ -102,7 +115,7 @@ public class Machine {
     }
 
     // Méthode pour modifier une machine
-    public void modifierMachine(String newRefMachine, String newDMachine, String newType, double newCout, float newX, float newY) {
+    public void modifierMachine(String newRefMachine, String newDMachine, String newType, double newCout, float newX, float newY, String newEtat) {
         if (!deleted) {
             this.refMachine = newRefMachine;
             this.dMachine = newDMachine;
@@ -110,11 +123,16 @@ public class Machine {
             this.cout = newCout;
             this.x = newX;
             this.y = newY;
+            this.etat = newEtat;
             System.out.println("Les informations de la machine ont été mises à jour.");
         } else {
             System.out.println("Impossible de modifier la machine, elle a été supprimée.");
         }
     }
     
+    //méthode pour vérifier si la machine est supprimée
+    public boolean isDeleted() {
+        return this.deleted;  // Retourne l'état de suppression de la machine
+    }
     
 }
