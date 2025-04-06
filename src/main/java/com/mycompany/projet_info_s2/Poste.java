@@ -41,6 +41,10 @@ public class Poste {
     public void setDesPoste(String desPoste) {
         this.desPoste = desPoste;
     }
+
+    public boolean getIsDeleted() {
+        return isDeleted;
+    }
     
     // Méthode pour ajouter une machine au poste
     public void ajouterMachine(Machine machine) {
