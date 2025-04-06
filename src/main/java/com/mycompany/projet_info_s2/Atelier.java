@@ -73,7 +73,7 @@ public class Atelier {
 
         System.out.println("\n===== GAMMES DE FABRICATION =====");
         for (Gamme g : gammes) {
-            System.out.println(g.afficherGamme());
+            System.out.println(g.afficheGamme());
         }
     }
 
