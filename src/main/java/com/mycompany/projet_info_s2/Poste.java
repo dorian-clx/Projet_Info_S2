@@ -5,6 +5,7 @@
 package com.mycompany.projet_info_s2;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.List;
 
 /**
  *
@@ -50,10 +51,15 @@ public class Poste {
     public void ajouterMachine(Machine machine) {
         if (!isDeleted) {
             machines.add(machine);
-            System.out.println("Machine " + machine.getRefMachine() + " ajoutée au poste.");
+            System.out.println("Machine " + machine.getRefMachine() + " ajoutée au poste" + getRefPoste() + ".");
         } else {
             System.out.println("Impossible d'ajouter une machine, le poste est supprimé.");
         }
+    }
+    
+    //méthode pour extraire les machines d'un poste 
+    public Set<Machine> getMachines() {
+        return machines;
     }
 
     // Méthode pour supprimer une machine du poste
