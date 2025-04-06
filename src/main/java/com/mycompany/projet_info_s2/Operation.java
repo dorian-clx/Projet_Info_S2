@@ -74,13 +74,33 @@ public class Operation {
     }
     
     //méthode pour afficher les caractéristiques d'une opération
-    public String afficheOperation(){
+    /*public String afficheOperation(){
          return "Opération #" + ordre + 
                  " [" + typeOperation + 
                  "] : " + nomOp +
                  " | Durée : " + duree + 
                  "h | Coût : " + cout + 
                  "€ | Poste : " + posteAssocie.getRefPoste();
+    }*/
+    
+    public String afficheOperation() {
+    StringBuilder sb = new StringBuilder();
+    sb.append("Opération #").append(ordre)
+      .append(" [").append(typeOperation).append("] : ").append(nomOp)
+      .append(" | Durée : ").append(duree).append("h")
+      .append(" | Coût : ").append(cout).append("€")
+      .append(" | Poste : ");
+
+    if (posteAssocie.getIsDeleted() == true) {
+            sb.append("Poste supprimé (").append(posteAssocie.getRefPoste()).append(")");
+    } 
+    else if (posteAssocie.getIsDeleted() == false) {
+            sb.append(posteAssocie.getRefPoste());
+    } 
+    else {
+        sb.append("Aucun poste associé");
     }
+    return sb.toString();
+}
     
 }
