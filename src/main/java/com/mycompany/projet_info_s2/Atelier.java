@@ -58,12 +58,12 @@ public class Atelier {
 
         System.out.println("\n===== MACHINES =====");
         for (Machine m : machines) {
-            System.out.println(m.afficheMachine());
+            System.out.println(m.afficheEquipement());
         }
 
         System.out.println("\n===== POSTES =====");
         for (Poste p : postes) {
-            System.out.println(p.affichePoste());
+            System.out.println(p.afficheEquipement());
         }
 
         System.out.println("\n===== OPERATEURS =====");
