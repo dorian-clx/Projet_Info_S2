@@ -11,100 +11,57 @@ import java.util.List;
  *
  * @author doriancacheleux
  */
-public class Poste{
+public class Poste extends Equipement{
     //attributs
-    private int refPoste;
-    private String desPoste;
-    private Set<Machine> machines; //ensemble des machines au sein  d'un poste
-    private boolean isDeleted; // Indicateur pour savoir si le poste est supprimé
-
-    //constructeur 
-    public Poste(int refPoste, String desPoste) {
-        this.refPoste = refPoste;
-        this.desPoste = desPoste;
-        this.machines = new HashSet<>(); // Initialisation de l'ensemble de machines
-        this.isDeleted = false; // Le poste n'est pas supprimé par défaut
-    }
     
-    //getters et setters
-    public int getRefPoste() {
-        return refPoste;
+    // Attributs
+    private Set<Machine> machines; // Ensemble des machines dans le poste
+
+    // Constructeur
+    public Poste(String refEquipement, String dEquipement, boolean isDeleted) {
+        super(refEquipement, dEquipement);
+        this.machines = new HashSet<>();
     }
 
-    public void setRefPoste(int refPoste) {
-        this.refPoste = refPoste;
+    // Getters
+    public String getRefPoste() {
+        return getRefEquipement();
     }
 
-    public String getDesPoste() {
-        return desPoste;
-    }
-
-    public void setDesPoste(String desPoste) {
-        this.desPoste = desPoste;
-    }
-
-    public boolean getIsDeleted() {
-        return isDeleted;
-    }
-    
-    // Méthode pour ajouter une machine au poste
-    public void ajouterMachine(Machine machine) {
-        if (!isDeleted) {
-            machines.add(machine);
-            System.out.println("Machine " + machine.getRefMachine() + " ajoutée au poste" + getRefPoste() + ".");
-        } else {
-            System.out.println("Impossible d'ajouter une machine, le poste est supprimé.");
-        }
-    }
-    
-    //méthode pour extraire les machines d'un poste 
     public Set<Machine> getMachines() {
         return machines;
     }
 
-    // Méthode pour supprimer une machine du poste
+    public String getIdentifiant() {
+        return "Poste-" + getRefEquipement();
+    }
+
+    // Ajout d'une machine
+    public void ajouterMachine(Machine machine) {
+        if (!isDeleted()) {
+            machines.add(machine);
+            System.out.println("Machine " + machine.getRefEquipement() + " ajoutée au poste " + getRefEquipement() + ".");
+        } else {
+            System.out.println("Impossible d'ajouter une machine, le poste est supprimé.");
+        }
+    }
+
+    // Suppression d'une machine
     public void supprimerMachine(Machine machine) {
-        if (!isDeleted) {
-            if (machines.contains(machine)) {
-                machines.remove(machine);
-                System.out.println("Machine " + machine.getRefMachine() + " supprimée du poste.");
+        if (!isDeleted()) {
+            if (machines.remove(machine)) {
+                System.out.println("Machine " + machine.getRefEquipement() + " supprimée du poste.");
             } else {
-                System.out.println("La machine " + machine.getRefMachine() + " n'est pas dans le poste.");
+                System.out.println("La machine " + machine.getRefEquipement() + " n'est pas dans le poste.");
             }
         } else {
             System.out.println("Impossible de supprimer une machine, le poste est supprimé.");
         }
     }
 
-    // Méthode pour afficher le poste et ses machines
-    public String affichePoste() {
-        if (!isDeleted) {
-            StringBuilder sb = new StringBuilder();
-            sb.append("Poste [refPoste = ").append(refPoste)
-            .append(", dPoste = ").append(desPoste)
-            .append(", Machines: ");
-        
-        if (machines.isEmpty()) {
-            sb.append("Aucune machine assignée.");
-        } 
-        else {
-            for (Machine m : machines) {  // Affichage des machines associées au poste
-                if (!m.isDeleted()) {
-                    sb.append("\n - ").append(m.afficheMachine());
-                }
-            }
-        }
-            sb.append("]");
-            return sb.toString(); // Retourne la chaîne de caractères formée
-        } 
-        else {
-            return "Le poste " + refPoste + " a été supprimé."; // Retourne un message sous forme de chaîne si le poste est supprimé
-        }
-    }
-
-    // Méthode pour modifier la composition du poste (ajouter ou supprimer des machines)
+    // Modifier la composition du poste
     public void modifierPoste(Machine machine, boolean ajouter) {
-        if (!isDeleted) {
+        if (!isDeleted()) {
             if (ajouter) {
                 ajouterMachine(machine);
             } else {
@@ -115,18 +72,39 @@ public class Poste{
         }
     }
 
-    
-    public String getIdentifiant() {
-        return "Poste-" + refPoste;
+    // Suppression du poste (et des machines associées)
+    public void supprimerPoste() {
+        supprimer(); // hérité de Equipement
+        for (Machine machine : machines) {
+            machine.supprimerMachine(); // Peut aussi être .supprimer()
+        }
+        System.out.println("Le poste " + getRefEquipement() + " et ses machines ont été supprimés.");
     }
 
-    public void supprimerPoste() {
-        isDeleted = true;
-        // Suppression de toutes les machines du poste
-        for (Machine machine : machines) {
-            machine.supprimerMachine();
+    // Affichage
+    @Override
+    public String afficheEquipement() {
+        if (isDeleted()) {
+            return "Le poste " + getRefEquipement() + " a été supprimé.";
+        } else {
+            StringBuilder sb = new StringBuilder();
+            sb.append("Poste [refPoste = ").append(getRefEquipement())
+              .append(", dPoste = ").append(getdEquipement())
+              .append(", Machines :");
+
+            if (machines.isEmpty()) {
+                sb.append(" Aucune machine assignée.");
+            } else {
+                for (Machine m : machines) {
+                    if (!m.isDeleted()) {
+                        sb.append("\n - ").append(m.afficheEquipement());
+                    }
+                }
+            }
+
+            sb.append("]");
+            return sb.toString();
         }
     }
-    
 }
    
