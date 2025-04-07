@@ -164,29 +164,71 @@ public class Gamme {
     }
 
     // Méthodes de calcul
-    public double dureeGamme() {
-        if (isDeleted) {
-            return 0.0;
-        }
-        
-        double total = 0;
-        for (Operation op : listeOperations) {
-            total += op.getDuree();
-        }
-        return total;
+    // Méthode pour calculer la durée totale de la gamme
+public double dureeGamme() {
+    if (isDeleted) {
+        return 0.0;
     }
 
-    public double coutGamme() {
-        if (isDeleted) {
-            return 0.0;
+    double total = 0;
+    for (Operation op : listeOperations) {
+        // Vérifier si l'opération est réalisable
+        if (op.getEquipementAssocie().getIsDeleted() || 
+            op.getEquipementAssocie() instanceof Poste poste && poste.getIsDeleted()) {
+            // Si le poste ou l'équipement est supprimé, on ignore l'opération
+            continue;
         }
-        
-        double total = 0;
-        for (Operation op : listeOperations) {
+
+        // Vérifier l'état de la machine associée
+        boolean operationRealisable = true;
+        if (op.getEquipementAssocie() instanceof Poste poste) {
+            for (Machine machine : poste.getMachines()) {
+                if (machine.isDeleted() || machine.getEtat() == EtatMachine.EN_PANNE || machine.getEtat() == EtatMachine.EN_MAINTENANCE) {
+                    operationRealisable = false;  // Une machine en panne ou en maintenance empêche l'opération
+                    break;
+                }
+            }
+        }
+
+        if (operationRealisable) {
+            total += op.getDuree();
+        }
+    }
+    return total;
+}
+
+    // Méthode pour calculer le coût total de la gamme
+public double coutGamme() {
+    if (isDeleted) {
+        return 0.0;
+    }
+
+    double total = 0;
+    for (Operation op : listeOperations) {
+        // Vérifier si l'opération est réalisable
+        if (op.getEquipementAssocie().getIsDeleted() || 
+            op.getEquipementAssocie() instanceof Poste poste && poste.getIsDeleted()) {
+            // Si le poste ou l'équipement est supprimé, on ignore l'opération
+            continue;
+        }
+
+        // Vérifier l'état de la machine associée
+        boolean operationRealisable = true;
+        if (op.getEquipementAssocie() instanceof Poste poste) {
+            for (Machine machine : poste.getMachines()) {
+                if (machine.isDeleted() || machine.getEtat() == EtatMachine.EN_PANNE || machine.getEtat() == EtatMachine.EN_MAINTENANCE) {
+                    operationRealisable = false;  // Une machine en panne ou en maintenance empêche l'opération
+                    break;
+                }
+            }
+        }
+
+        if (operationRealisable) {
             total += op.getCout();
         }
-        return total;
     }
+    return total;
+}
     
     public boolean peutEtreRealisee() {
         if (isDeleted) {
@@ -239,67 +281,110 @@ public class Gamme {
         return sb.toString();
     }
 
-    public double getPourcentageRealisation() {
-        if (isDeleted || listeOperations.isEmpty()) {
-            return 0.0;
+    // Méthode pour calculer le pourcentage de réalisation de la gamme
+public double getPourcentageRealisation() {
+    if (isDeleted || listeOperations.isEmpty()) {
+        return 0.0;
+    }
+
+    int operationsRealisables = 0;
+    for (Operation op : listeOperations) {
+        // Vérifier si l'opération est réalisable
+        if (op.getEquipementAssocie().getIsDeleted() || 
+            op.getEquipementAssocie() instanceof Poste poste && poste.getIsDeleted()) {
+            // Si le poste ou l'équipement est supprimé, on ignore l'opération
+            continue;
         }
-        
-        int operationsRealisables = 0;
-        for (Operation op : listeOperations) {
-            if (!op.getEquipementAssocie().getIsDeleted()) {
-                operationsRealisables++;
+
+        // Vérifier l'état de la machine associée
+        boolean operationRealisable = true;
+        if (op.getEquipementAssocie() instanceof Poste poste) {
+            for (Machine machine : poste.getMachines()) {
+                if (machine.isDeleted() || machine.getEtat() == EtatMachine.EN_PANNE || machine.getEtat() == EtatMachine.EN_MAINTENANCE) {
+                    operationRealisable = false;  // Une machine en panne ou en maintenance empêche l'opération
+                    break;
+                }
             }
         }
-        
-        return (double) operationsRealisables / listeOperations.size() * 100;
+
+        if (operationRealisable) {
+            operationsRealisables++;
+        }
     }
+
+    return (double) operationsRealisables / listeOperations.size() * 100;
+}
 
     // Affichage de la gamme
     public String afficheGamme() {
-        if (isDeleted) {
-            return "La gamme " + refGamme + " a été supprimée.";
-        }
-        
-        StringBuilder sb = new StringBuilder();
-        sb.append("Gamme ref: ").append(refGamme).append(" (Produit: ").append(produit.getDesPro()).append(")\n");
-        
-        // Affichage des opérations
-        sb.append("Opérations :\n");
-        for (Operation op : listeOperations) {
-            sb.append(" - ").append(op.afficheOperation()).append("\n");
-        }
-        
-        // Affichage des équipements nécessaires (postes et machines)
-        sb.append("\nListe des équipements nécessaires :\n");
-
-        // Postes
-        if (listePostes.isEmpty()) {
-            sb.append(" - Aucun poste enregistré\n");
-        } else {
-            for (Poste poste : listePostes) {
-                sb.append(" - Poste: ").append(poste.getRefPoste())
-                .append(" [").append(poste.getIsDeleted() ? "SUPPRIMÉ ❌" : "OPÉRATIONNEL ✅").append("]\n");
-            }
-        }
-
-        // Machines
-        if (listeMachines.isEmpty()) {
-            sb.append(" - Aucune machine enregistrée\n");
-        } else {
-            for (Machine machine : listeMachines) {
-                sb.append(" - Machine: ").append(machine.getRefMachine())
-                .append(" [").append(machine.isDeleted() ? "SUPPRIMÉ ❌" : "OPÉRATIONNEL ✅").append("]\n");
-            }
-        }
-
-        // Informations sur la durée et le coût
-        sb.append("\nDurée totale : ").append(dureeGamme()).append("h\n");
-        sb.append("Coût total : ").append(coutGamme()).append("€\n");
-        sb.append("Pourcentage de réalisation : ").append(String.format("%.1f", getPourcentageRealisation())).append("%\n");
-        
-        // Statut de réalisation
-        sb.append("\n").append(getStatusRealisation()).append("\n");
-        
-        return sb.toString();
+    if (isDeleted) {
+        return "La gamme " + refGamme + " a été supprimée.";
     }
+    
+    StringBuilder sb = new StringBuilder();
+    sb.append("Gamme ref: ").append(refGamme).append(" (Produit: ").append(produit.getDesPro()).append(")\n");
+    
+    // Affichage des opérations
+    sb.append("Opérations :\n");
+    for (Operation op : listeOperations) {
+        sb.append(" - ").append(op.afficheOperation()).append("\n");
+    }
+    
+    // Affichage des équipements nécessaires (postes et machines)
+    sb.append("\nListe des équipements nécessaires :\n");
+
+    // Postes
+    if (listePostes.isEmpty()) {
+        sb.append(" - Aucun poste enregistré\n");
+    } else {
+        for (Poste poste : listePostes) {
+            String posteEtat = poste.getIsDeleted() ? "SUPPRIMÉ ❌" : "OPÉRATIONNEL ✅";
+            sb.append(" - Poste: ").append(poste.getRefPoste())
+              .append(" [État: ").append(posteEtat).append("]\n");
+        }
+    }
+
+    // Machines
+    if (listeMachines.isEmpty()) {
+        sb.append(" - Aucune machine enregistrée\n");
+    } else {
+        for (Machine machine : listeMachines) {
+            // Utilisation de la méthode estOperationnelle() pour simplifier l'affichage
+            String machineEtat;
+            if (machine.isDeleted()) {
+                machineEtat = "SUPPRIMÉ ❌";
+            } else {
+                switch (machine.getEtat()) {
+                    case DISPONIBLE:
+                        machineEtat = "OPÉRATIONNEL ✅";
+                        break;
+                    case OCCUPEE:
+                        machineEtat = "OCCUPÉE ⏳";
+                        break;
+                    case EN_PANNE:
+                        machineEtat = "EN PANNE ❌";
+                        break;
+                    case EN_MAINTENANCE:
+                        machineEtat = "EN MAINTENANCE 🔧";
+                        break;
+                    default:
+                        machineEtat = "ÉTAT INCONNU";
+                        break;
+                }
+            }
+            sb.append(" - Machine: ").append(machine.getRefMachine())
+              .append(" [État: ").append(machineEtat).append("]\n");
+        }
+    }
+
+    // Informations sur la durée et le coût
+    sb.append("\nDurée totale : ").append(dureeGamme()).append("h\n");
+    sb.append("Coût total : ").append(coutGamme()).append("€\n");
+    sb.append("Pourcentage de réalisation : ").append(String.format("%.1f", getPourcentageRealisation())).append("%\n");
+    
+    // Statut de réalisation
+    sb.append("\n").append(getStatusRealisation()).append("\n");
+    
+    return sb.toString();
+}
 }
