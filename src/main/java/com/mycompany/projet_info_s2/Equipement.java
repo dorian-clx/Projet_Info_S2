@@ -8,47 +8,56 @@ package com.mycompany.projet_info_s2;
  *
  * @author doriancacheleux
  */
-public class Equipement {
-    private String refEquipement; 
-    private String dEquipement;
-    private boolean isDeleted;
+    public abstract class Equipement {
+        private String refEquipement;
+        private String dEquipement;
+        protected boolean isDeleted;
+
+    public Equipement(String refEquipement, String dEquipement) {
+        this.refEquipement = refEquipement;
+        this.dEquipement = dEquipement;
+        this.isDeleted = false;
+    }
 
     public String getRefEquipement() {
         return refEquipement;
     }
 
-    public void setRefEquipement(String refEquipement) {
+    public void setRefEquipement(String refEqupement) {
         this.refEquipement = refEquipement;
     }
 
-    public String getDEquipement() {
+    public String getdEquipement() {
         return dEquipement;
     }
 
-    public void setDEquipement(String dEquipement) {
+    public void setdEquipement(String dEquipement) {
         this.dEquipement = dEquipement;
     }
+
+    public boolean getIsDeleted() {
+        return isDeleted;
+    }
     
+    
+
     public boolean isDeleted() {
         return isDeleted;
     }
 
-    public Equipement(String refEquipement, String dEquipement, boolean isDeleted) {
-        this.refEquipement = refEquipement;
-        this.dEquipement = dEquipement;
-        this.isDeleted = isDeleted;
-    }
-    
-    // Méthode pour afficher les informations de l'équipement
-    public String afficheEquipement() {
-        return "Equipement [Référence: " + refEquipement + ", État: " + (isDeleted ? "SUPPRIMÉ ❌" : "OPÉRATIONNEL ✅") + "]";
+    public void supprimer() {
+        this.isDeleted = true;
     }
 
-    boolean getIsDeleted() {
-        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
+    public void restaurer() {
+        this.isDeleted = false;
     }
 
-    Iterable<Machine> getMachines() {
-        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
+    // Méthode abstraite à implémenter par les sous-classes
+    public abstract String afficheEquipement();
+
+    @Override
+    public String toString() {
+        return refEquipement + dEquipement + " [" + (isDeleted ? "SUPPRIMÉ ❌" : "OPÉRATIONNEL ✅") + "]";
     }
 }
