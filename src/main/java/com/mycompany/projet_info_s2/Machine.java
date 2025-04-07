@@ -69,7 +69,7 @@ public class Machine extends Equipement {
     }
     
     public String getdMachine(){
-        return getdMachine();
+        return getdEquipement();
     }
     
     public EtatMachine getEtat() {
