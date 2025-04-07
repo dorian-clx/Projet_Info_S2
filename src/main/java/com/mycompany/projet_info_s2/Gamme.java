@@ -14,13 +14,12 @@ import java.util.Set;
 public class Gamme {
     
     // Attributs
-    private String refGamme;  // Renommé pour correspondre à la spécification
+    private String refGamme;
     private Produit produit;
-    private List<Operation> listeOperations;// Renommé pour correspondre à la spécification
-    private Set<Poste> listePostes;         // Ensemble des postes nécessaires
-    private Set<Machine> listeMachines;     // Ensemble des machines nécessaires
-    private boolean isDeleted;              // Indicateur pour savoir si la gamme est supprimée
-    private Set<Object> listeEquipements;
+    private List<Operation> listeOperations;
+    private Set<Poste> listePostes;
+    private Set<Machine> listeMachines;
+    private boolean isDeleted;  // Indicateur pour savoir si la gamme est supprimée
 
     // Getters et setters
     public String getRefGamme() {
@@ -68,20 +67,22 @@ public class Gamme {
         this.listeMachines = new HashSet<>();
         this.isDeleted = false;
         
-        // Extraire les postes des opérations
+        // Extraire les postes et machines des opérations
         extractEquipements();
     }
     
     // Méthode pour extraire les équipements des opérations
     private void extractEquipements() {
         for (Operation op : listeOperations) {
-            if (op.getPosteAssocie() != null) {
-                listePostes.add(op.getPosteAssocie());
+            if (op.getEquipementAssocie() != null) {
+                listePostes.add((Poste) op.getEquipementAssocie());
                 
                 // Récupérer les machines associées à ce poste
-                for (Machine machine : op.getPosteAssocie().getMachines()) {
-                    if (!machine.isDeleted()) {
-                        listeMachines.add(machine);
+                if (op.getEquipementAssocie() instanceof Poste poste) {
+                    for (Machine machine : poste.getMachines()) {
+                        if (!machine.isDeleted()) {
+                            listeMachines.add(machine);
+                        }
                     }
                 }
             }
@@ -117,7 +118,6 @@ public class Gamme {
     }
     
     public void supprimerGamme() {
-        // Marquer la gamme comme supprimée
         this.isDeleted = true;
         System.out.println("Gamme " + refGamme + " supprimée");
     }
@@ -127,17 +127,8 @@ public class Gamme {
         if (!isDeleted) {
             listeOperations.add(op);
             
-            // Mettre à jour les équipements
-            if (op.getPosteAssocie() != null) {
-                listePostes.add(op.getPosteAssocie());
-                
-                // Ajouter les machines associées au poste
-                for (Machine machine : op.getPosteAssocie().getMachines()) {
-                    if (!machine.isDeleted()) {
-                        listeMachines.add(machine);
-                    }
-                }
-            }
+            // Mettre à jour les équipements associés à l'opération
+            updateEquipements(op);
         } else {
             System.out.println("Impossible d'ajouter une opération, la gamme est supprimée.");
         }
@@ -153,6 +144,22 @@ public class Gamme {
             extractEquipements();
         } else {
             System.out.println("Impossible de supprimer une opération, la gamme est supprimée.");
+        }
+    }
+
+    // Méthode pour mettre à jour les équipements associés à une opération
+    private void updateEquipements(Operation op) {
+        if (op.getEquipementAssocie() != null) {
+            listePostes.add((Poste) op.getEquipementAssocie());
+            
+            // Ajouter les machines associées au poste
+            if (op.getEquipementAssocie() instanceof Poste poste) {
+                for (Machine machine : poste.getMachines()) {
+                    if (!machine.isDeleted()) {
+                    listeMachines.add(machine);
+                    }
+                }
+            }
         }
     }
 
@@ -187,7 +194,7 @@ public class Gamme {
         }
         
         for (Operation op : listeOperations) {
-            if (op.getPosteAssocie().getIsDeleted()) {
+            if (op.getEquipementAssocie().getIsDeleted()) {
                 return false;
             }
         }
@@ -206,7 +213,7 @@ public class Gamme {
         sb.append("Statut de réalisation:\n");
         
         for (Operation op : listeOperations) {
-            if (op.getPosteAssocie().getIsDeleted()) {
+            if (op.getEquipementAssocie().getIsDeleted()) {
                 sb.append(" - Opération #").append(op.getOrdre())
                   .append(" : NON RÉALISABLE (poste supprimé)\n");
                 operationsNonRealisables++;
@@ -239,7 +246,7 @@ public class Gamme {
         
         int operationsRealisables = 0;
         for (Operation op : listeOperations) {
-            if (!op.getPosteAssocie().getIsDeleted()) {
+            if (!op.getEquipementAssocie().getIsDeleted()) {
                 operationsRealisables++;
             }
         }
@@ -247,24 +254,6 @@ public class Gamme {
         return (double) operationsRealisables / listeOperations.size() * 100;
     }
 
-    public Set<String> getListeEquipements() {
-    Set<String> equipements = new HashSet<>();
-    
-    for (Poste poste : listePostes) {
-        if (!poste.getIsDeleted()) {
-            equipements.add("Poste: " + poste.getRefPoste());
-        }
-    }
-
-    for (Machine machine : listeMachines) {
-        if (!machine.isDeleted()) {
-            equipements.add("Machine: " + machine.getRefMachine());
-        }
-    }
-
-    return equipements;
-}
-    
     // Affichage de la gamme
     public String afficheGamme() {
         if (isDeleted) {
@@ -280,7 +269,7 @@ public class Gamme {
             sb.append(" - ").append(op.afficheOperation()).append("\n");
         }
         
-        // Affichage des équipements nécessaires (postes et machines, même supprimés)
+        // Affichage des équipements nécessaires (postes et machines)
         sb.append("\nListe des équipements nécessaires :\n");
 
         // Postes
@@ -288,14 +277,14 @@ public class Gamme {
             sb.append(" - Aucun poste enregistré\n");
         } else {
             for (Poste poste : listePostes) {
-            sb.append(" - Poste: ").append(poste.getRefPoste())
-            .append(" [").append(poste.getIsDeleted() ? "SUPPRIMÉ ❌" : "OPÉRATIONNEL ✅").append("]\n");
+                sb.append(" - Poste: ").append(poste.getRefPoste())
+                .append(" [").append(poste.getIsDeleted() ? "SUPPRIMÉ ❌" : "OPÉRATIONNEL ✅").append("]\n");
             }
         }
 
         // Machines
         if (listeMachines.isEmpty()) {
-        sb.append(" - Aucune machine enregistrée\n");
+            sb.append(" - Aucune machine enregistrée\n");
         } else {
             for (Machine machine : listeMachines) {
                 sb.append(" - Machine: ").append(machine.getRefMachine())
