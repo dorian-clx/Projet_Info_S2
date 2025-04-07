@@ -73,21 +73,28 @@ public class Gamme {
     
     // Méthode pour extraire les équipements des opérations
     private void extractEquipements() {
-        for (Operation op : listeOperations) {
-            if (op.getEquipementAssocie() != null) {
-                listePostes.add((Poste) op.getEquipementAssocie());
+    for (Operation op : listeOperations) {
+        if (op.getEquipementAssocie() != null) {
+            // Si l'équipement est un Poste, l'ajouter à la liste des postes
+            if (op.getEquipementAssocie() instanceof Poste poste) {
+                listePostes.add(poste);
                 
-                // Récupérer les machines associées à ce poste
-                if (op.getEquipementAssocie() instanceof Poste poste) {
-                    for (Machine machine : poste.getMachines()) {
-                        if (!machine.isDeleted()) {
-                            listeMachines.add(machine);
-                        }
+                // Récupérer les machines associées au poste
+                for (Machine machine : poste.getMachines()) {
+                    if (!machine.isDeleted()) {
+                        listeMachines.add(machine);
                     }
+                }
+            }
+            // Si l'équipement est une Machine, l'ajouter à la liste des machines
+            else if (op.getEquipementAssocie() instanceof Machine machine) {
+                if (!machine.isDeleted()) {
+                    listeMachines.add(machine);
                 }
             }
         }
     }
+}
     
     // Méthodes de gestion de gammes
     public void creerGamme() {
@@ -165,7 +172,7 @@ public class Gamme {
 
     // Méthodes de calcul
     // Méthode pour calculer la durée totale de la gamme
-public double dureeGamme() {
+    public double dureeGamme() {
     if (isDeleted) {
         return 0.0;
     }
@@ -198,7 +205,7 @@ public double dureeGamme() {
 }
 
     // Méthode pour calculer le coût total de la gamme
-public double coutGamme() {
+    public double coutGamme() {
     if (isDeleted) {
         return 0.0;
     }
@@ -244,42 +251,67 @@ public double coutGamme() {
     }
 
     public String getStatusRealisation() {
-        if (isDeleted) {
-            return "La gamme a été supprimée et ne peut pas être réalisée.";
+    if (isDeleted) {
+        return "La gamme a été supprimée et ne peut pas être réalisée.";
+    }
+
+    StringBuilder sb = new StringBuilder();
+    int operationsNonRealisables = 0;
+    int totalOperations = listeOperations.size();
+
+    sb.append("Statut de réalisation:\n");
+
+    for (Operation op : listeOperations) {
+        Equipement equipementAssocie = op.getEquipementAssocie(); // Récupère l'équipement associé à l'opération
+
+        // Vérifie si l'équipement est supprimé
+        if (equipementAssocie.getIsDeleted()) {
+            sb.append(" - Opération #").append(op.getOrdre())
+              .append(" : NON RÉALISABLE (équipement supprimé)\n");
+            operationsNonRealisables++;
+            continue; // Passe à la prochaine opération
         }
-        
-        StringBuilder sb = new StringBuilder();
-        int operationsNonRealisables = 0;
-        int totalOperations = listeOperations.size();
-        
-        sb.append("Statut de réalisation:\n");
-        
-        for (Operation op : listeOperations) {
-            if (op.getEquipementAssocie().getIsDeleted()) {
-                sb.append(" - Opération #").append(op.getOrdre())
-                  .append(" : NON RÉALISABLE (poste supprimé)\n");
-                operationsNonRealisables++;
-            } else {
-                sb.append(" - Opération #").append(op.getOrdre())
-                  .append(" : Réalisable\n");
+
+ 
+        // Vérifier si l'opération est réalisable
+        else { if(op.getEquipementAssocie().getIsDeleted() || 
+            op.getEquipementAssocie() instanceof Poste poste && poste.getIsDeleted()) {
+            // Si le poste ou l'équipement est supprimé, on ignore l'opération
+            continue;
+        }
+
+        // Vérifier l'état de la machine associée
+        if (op.getEquipementAssocie() instanceof Poste poste) {
+            for (Machine machine : poste.getMachines()) {
+                if (machine.isDeleted() || machine.getEtat() == EtatMachine.EN_PANNE || machine.getEtat() == EtatMachine.EN_MAINTENANCE || machine.getEtat() == EtatMachine.OCCUPEE) {
+                    operationsNonRealisables++;  // Une machine en panne ou en maintenance empêche l'opération
+                    break;
+                }
+            }
+        } else if (op.getEquipementAssocie() instanceof Machine machine) {
+            // Si l'équipement est une machine indépendante, vérifier son état
+            if (machine.isDeleted() || machine.getEtat() == EtatMachine.EN_PANNE || machine.getEtat() == EtatMachine.EN_MAINTENANCE || machine.getEtat() == EtatMachine.OCCUPEE) {
+                operationsNonRealisables++;  // Une machine en panne ou en maintenance empêche l'opération
             }
         }
-        
-        // Verdict final avec plus de détails
-        if (operationsNonRealisables == 0) {
-            sb.append("Verdict: Gamme entièrement réalisable");
-        } else if (operationsNonRealisables == totalOperations) {
-            sb.append("Verdict: Gamme totalement non réalisable");
-        } else {
-            sb.append("Verdict: Gamme partiellement réalisable (")
-              .append(totalOperations - operationsNonRealisables)
-              .append(" opérations sur ")
-              .append(totalOperations)
-              .append(" sont réalisables)");
-        }
-        
-        return sb.toString();
     }
+    }
+
+    // Verdict final avec plus de détails
+    if (operationsNonRealisables == 0) {
+        sb.append("Verdict: Gamme entièrement réalisable");
+    } else if (operationsNonRealisables == totalOperations) {
+        sb.append("Verdict: Gamme totalement non réalisable");
+    } else {
+        sb.append("Verdict: Gamme partiellement réalisable (")
+          .append(totalOperations - operationsNonRealisables)
+          .append(" opérations sur ")
+          .append(totalOperations)
+          .append(" sont réalisables)");
+    }
+
+    return sb.toString();
+}
 
     // Méthode pour calculer le pourcentage de réalisation de la gamme
 public double getPourcentageRealisation() {
@@ -300,12 +332,19 @@ public double getPourcentageRealisation() {
         boolean operationRealisable = true;
         if (op.getEquipementAssocie() instanceof Poste poste) {
             for (Machine machine : poste.getMachines()) {
-                if (machine.isDeleted() || machine.getEtat() == EtatMachine.EN_PANNE || machine.getEtat() == EtatMachine.EN_MAINTENANCE) {
+                if (machine.isDeleted() || machine.getEtat() == EtatMachine.EN_PANNE || machine.getEtat() == EtatMachine.EN_MAINTENANCE || machine.getEtat() == EtatMachine.OCCUPEE) {
                     operationRealisable = false;  // Une machine en panne ou en maintenance empêche l'opération
                     break;
                 }
             }
+ 
+        } else if (op.getEquipementAssocie() instanceof Machine machine) {
+            // Si l'équipement est une machine indépendante, vérifier son état
+            if (machine.isDeleted() || machine.getEtat() == EtatMachine.EN_PANNE || machine.getEtat() == EtatMachine.EN_MAINTENANCE || machine.getEtat() == EtatMachine.OCCUPEE) {
+                operationRealisable = false;  // Une machine en panne ou en maintenance empêche l'opération
+            }
         }
+
 
         if (operationRealisable) {
             operationsRealisables++;
@@ -352,11 +391,11 @@ public double getPourcentageRealisation() {
             // Utilisation de la méthode estOperationnelle() pour simplifier l'affichage
             String machineEtat;
             if (machine.isDeleted()) {
-                machineEtat = "SUPPRIMÉ ❌";
+                machineEtat = "SUPPRIMÉE ❌";
             } else {
                 switch (machine.getEtat()) {
                     case DISPONIBLE:
-                        machineEtat = "OPÉRATIONNEL ✅";
+                        machineEtat = "DISPONIBLE ✅";
                         break;
                     case OCCUPEE:
                         machineEtat = "OCCUPÉE ⏳";
