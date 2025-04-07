@@ -8,36 +8,30 @@ package com.mycompany.projet_info_s2;
  *
  * @author jbugnet01
  */
-public class Machine {
+public class Machine extends Equipement {
     
-    // Attributs
-    private String refMachine;
-    private String dMachine;
+    // Attributs spécifiques à Machine
     private String type;
     private double cout;
     private float x;
     private float y;
-    private boolean deleted;  // Indicateur pour savoir si la machine est supprimée
-    private String etat;
-    
-    
+    private EtatMachine etat;
+    private Operateur operateurActuel; // l’opérateur qui utilise actuellement la machine
+    private boolean isDeleted;
+
+    // Constructeur
+    public Machine(String refEquipement, String dEquipement, String type, double cout, float x, float y, boolean isDeleted) {
+        super(refEquipement, dEquipement);
+        this.type = type;
+        this.cout = cout;
+        this.x = x;
+        this.y = y;
+        this.etat = EtatMachine.DISPONIBLE;
+        this.operateurActuel = null;
+        this.isDeleted = false;
+    }
+
     // Getters et Setters
-    public String getRefMachine() {
-        return refMachine;
-    }
-
-    public void setRefMachine(String refMachine) {
-        this.refMachine = refMachine;
-    }
-
-    public String getdMachine() {
-        return dMachine;
-    }
-
-    public void setdMachine(String dMachine) {
-        this.dMachine = dMachine;
-    }
-
     public String getType() {
         return type;
     }
@@ -70,69 +64,110 @@ public class Machine {
         this.y = y;
     }
 
-    public String getEtat() {
+    public String getRefMachine() {
+        return getRefEquipement();
+    }
+    
+    public String getdMachine(){
+        return getdMachine();
+    }
+    
+    public EtatMachine getEtat() {
         return etat;
     }
 
-    public void setEtat(String etat) {
-        this.etat = etat;
+    public Operateur getOperateurActuel() {
+        return operateurActuel;
     }
-    
-    
-    
-    // Constructeur
-    public Machine(String refMachine, String dMachine, String type, double cout, float x, float y) {
-        this.refMachine = refMachine;
-        this.dMachine = dMachine;
-        this.type = type;
-        this.cout = cout;
-        this.x = x;
-        this.y = y;
-        this.etat = "opérationnel"; // état par défaut
-        this.deleted = false;
+
+// Méthode pour mettre la machine en panne
+public void mettreEnPanne() {
+    this.etat = EtatMachine.EN_PANNE;
+    this.operateurActuel = null;
+    System.out.println("Machine " + getRefMachine() + " mise en panne.");
+}
+
+// Méthode pour mettre en maintenance
+public void mettreEnMaintenance() {
+    this.etat = EtatMachine.EN_MAINTENANCE;
+    this.operateurActuel = null;
+    System.out.println("Machine " + getRefMachine() + " en maintenance.");
+}
+
+// Méthode pour remettre en état
+public void remettreEnService() {
+    this.etat = EtatMachine.DISPONIBLE;
+    System.out.println("Machine " + getRefMachine() + " disponible.");
+}
+
+// Utiliser la machine
+public boolean utiliserMachine(Operateur operateur) {
+    if (etat == EtatMachine.DISPONIBLE && !isDeleted() && operateur.peutUtiliserMachine(getRefMachine())) {
+        this.operateurActuel = operateur;
+        this.etat = EtatMachine.OCCUPEE;
+        operateur.setOccupe(true);
+        System.out.println("Machine " + getRefMachine() + " utilisée par l’opérateur " + operateur.getNom());
+        return true;
+    } else {
+        System.out.println("Machine " + getRefMachine() + " non disponible ou opérateur non qualifié.");
+        return false;
     }
-    
-    
-    // Méthodes pour afficher les informations de la machine
-    public String afficheMachine() {
-        if (deleted) {
-            return "La machine " + refMachine + " a été supprimée.";
+}
+
+// Libérer la machine
+public void libererMachine() {
+    if (etat == EtatMachine.OCCUPEE) {
+        if (operateurActuel != null) {
+            operateurActuel.setOccupe(false);
+            System.out.println("Opérateur " + operateurActuel.getNom() + " a libéré la machine " + getRefMachine());
+        }
+        this.operateurActuel = null;
+        this.etat = EtatMachine.DISPONIBLE;
+    }
+}
+
+    // Implémentation de la méthode abstraite
+    @Override
+    public String afficheEquipement() {
+        if (isDeleted()) {
+            return "La machine " + getRefEquipement() + " a été supprimée.";
         } else {
-            return "Machine [refMachine = " + this.getRefMachine() + 
-                   ", dMachine = " + this.getdMachine() + 
-                   ", type = " + this.getType() + 
-                   ", cout = " + this.getCout() + 
-                   ", x = " + this.getX() + 
-                   ", y = " + this.getY() +
-                   ", état = " + this.getEtat() + "]";
+            return "Machine [refMachine = " + this.getRefEquipement() +
+                   ", dMachine = " + this.getdEquipement() +
+                   ", type = " + this.type +
+                   ", cout = " + this.cout +
+                   ", x = " + this.x +
+                   ", y = " + this.y +
+                   ", état = " + this.etat +
+                    (operateurActuel != null ? ", opérateur = " + operateurActuel.getNom() : "") +
+                   "]";
         }
     }
 
-    // Méthode pour supprimer une machine
+    // Suppression (hérite déjà de supprimer() via Equipement)
     public void supprimerMachine() {
-        this.deleted = true;
-        System.out.println("La machine " + this.refMachine + " a été supprimée.");
+        this.supprimer();
+        System.out.println("La machine " + this.getRefEquipement() + " a été supprimée.");
     }
 
-    // Méthode pour modifier une machine
-    public void modifierMachine(String newRefMachine, String newDMachine, String newType, double newCout, float newX, float newY, String newEtat) {
-        if (!deleted) {
-            this.refMachine = newRefMachine;
-            this.dMachine = newDMachine;
-            this.type = newType;
-            this.cout = newCout;
-            this.x = newX;
-            this.y = newY;
-            this.etat = newEtat;
-            System.out.println("Les informations de la machine ont été mises à jour.");
-        } else {
-            System.out.println("Impossible de modifier la machine, elle a été supprimée.");
+    public void modifierMachine(String newRefMachine, String newdMachine, String newType, double newCout, float newX, float newY, String newEtat) {
+    if (!isDeleted()) {
+        this.setRefEquipement(newRefMachine);
+        this.setdEquipement(newdMachine);
+        this.type = newType;
+        this.cout = newCout;
+        this.x = newX;
+        this.y = newY;
+        
+        try {
+            this.etat = EtatMachine.valueOf(newEtat.toUpperCase()); // conversion String -> Enum
+        } catch (IllegalArgumentException e) {
+            System.out.println("État invalide : " + newEtat + ". Aucun changement d’état effectué.");
         }
+
+        System.out.println("Les informations de la machine ont été mises à jour.");
+    } else {
+        System.out.println("Impossible de modifier la machine, elle a été supprimée.");
     }
-    
-    //méthode pour vérifier si la machine est supprimée
-    public boolean isDeleted() {
-        return this.deleted;  // Retourne l'état de suppression de la machine
-    }
-    
+}
 }
