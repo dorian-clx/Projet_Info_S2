@@ -10,7 +10,7 @@ package com.mycompany.projet_info_s2;
  */
 public class Operation {
     private String nomOp;
-    private Poste posteAssocie;
+    private Equipement equipementAssocie; // Utilisation d'Equipement à la place de Poste
     private double duree;
     private double cout;
     private String typeOperation;         
@@ -24,12 +24,12 @@ public class Operation {
         this.nomOp = nomOp;
     }
 
-    public Poste getPosteAssocie() {
-        return posteAssocie;
+    public Equipement getEquipementAssocie() {
+        return equipementAssocie;
     }
 
-    public void setPosteAssocie(Poste posteAssocie) {
-        this.posteAssocie = posteAssocie;
+    public void setEquipementAssocie(Equipement equipementAssocie) {
+        this.equipementAssocie = equipementAssocie;
     }
 
     public double getDuree() {
@@ -64,43 +64,30 @@ public class Operation {
         this.ordre = ordre;
     }
 
-    public Operation(String nomOp, Poste posteAssocie, double duree, double cout, String typeOperation, int ordre) {
+    public Operation(String nomOp, Equipement equipementAssocie, double duree, double cout, String typeOperation, int ordre) {
         this.nomOp = nomOp;
-        this.posteAssocie = posteAssocie;
+        this.equipementAssocie = equipementAssocie;
         this.duree = duree;
         this.cout = cout;
         this.typeOperation = typeOperation;
         this.ordre = ordre;
     }
-    
-    //méthode pour afficher les caractéristiques d'une opération
-    /*public String afficheOperation(){
-         return "Opération #" + ordre + 
-                 " [" + typeOperation + 
-                 "] : " + nomOp +
-                 " | Durée : " + duree + 
-                 "h | Coût : " + cout + 
-                 "€ | Poste : " + posteAssocie.getRefPoste();
-    }*/
-    
-    public String afficheOperation() {
-    StringBuilder sb = new StringBuilder();
-    sb.append("Opération #").append(ordre)
-      .append(" [").append(typeOperation).append("] : ").append(nomOp)
-      .append(" | Durée : ").append(duree).append("h")
-      .append(" | Coût : ").append(cout).append("€")
-      .append(" | Poste : ");
 
-    if (posteAssocie.getIsDeleted() == true) {
-            sb.append("Poste supprimé (").append(posteAssocie.getRefPoste()).append(")");
-    } 
-    else if (posteAssocie.getIsDeleted() == false) {
-            sb.append(posteAssocie.getRefPoste());
-    } 
-    else {
-        sb.append("Aucun poste associé");
+    // Méthode pour afficher les caractéristiques d'une opération
+    public String afficheOperation() {
+        StringBuilder sb = new StringBuilder();
+        sb.append("Opération #").append(ordre)
+          .append(" [").append(typeOperation).append("] : ").append(nomOp)
+          .append(" | Durée : ").append(duree).append("h")
+          .append(" | Coût : ").append(cout).append("€")
+          .append(" | Equipement associé : ");
+
+        // Afficher le statut de l'équipement
+        if (equipementAssocie == null) {
+            sb.append("Aucun équipement associé");
+        } else {
+            sb.append(equipementAssocie.afficheEquipement());  // Appel à la méthode d'affichage d'Equipement
+        }
+        return sb.toString();
     }
-    return sb.toString();
-}
-    
 }
