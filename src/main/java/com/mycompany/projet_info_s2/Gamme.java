@@ -205,28 +205,38 @@ public class Gamme {
 }
 
     // Méthode pour calculer le coût total de la gamme
-    public double coutGamme() {
+   public double coutGamme() {
     if (isDeleted) {
         return 0.0;
     }
 
-    double total = 0;
+    double total = 0.0;
     for (Operation op : listeOperations) {
-        // Vérifier si l'opération est réalisable
-        if (op.getEquipementAssocie().getIsDeleted() || 
-            op.getEquipementAssocie() instanceof Poste poste && poste.getIsDeleted()) {
-            // Si le poste ou l'équipement est supprimé, on ignore l'opération
+        Equipement equipement = op.getEquipementAssocie();
+
+        // Ignorer les opérations dont l'équipement est supprimé
+        if (equipement.getIsDeleted()) {
             continue;
         }
 
-        // Vérifier l'état de la machine associée
         boolean operationRealisable = true;
-        if (op.getEquipementAssocie() instanceof Poste poste) {
+
+        if (equipement instanceof Poste poste) {
+            // Vérifier les machines du poste
             for (Machine machine : poste.getMachines()) {
-                if (machine.isDeleted() || machine.getEtat() == EtatMachine.EN_PANNE || machine.getEtat() == EtatMachine.EN_MAINTENANCE) {
-                    operationRealisable = false;  // Une machine en panne ou en maintenance empêche l'opération
+                if (machine.isDeleted() || 
+                    machine.getEtat() == EtatMachine.EN_PANNE || 
+                    machine.getEtat() == EtatMachine.EN_MAINTENANCE) {
+                    operationRealisable = false;
                     break;
                 }
+            }
+        } else if (equipement instanceof Machine machine) {
+            // Vérifier la machine directement associée
+            if (machine.isDeleted() || 
+                machine.getEtat() == EtatMachine.EN_PANNE || 
+                machine.getEtat() == EtatMachine.EN_MAINTENANCE) {
+                operationRealisable = false;
             }
         }
 
@@ -234,6 +244,7 @@ public class Gamme {
             total += op.getCout();
         }
     }
+
     return total;
 }
     
