@@ -38,6 +38,7 @@ public class Projet_Info_S2 {
         Machine m3 = new Machine("M003", "Ponceuse", "Finition", 25.0, 20.0f, 30.0f, false);
         Machine m4 = new Machine("M004", "Tour", "Usinage", 75.0, 25.0f, 35.0f, false);
         Machine m5 = new Machine("M005", "Fraiseuse", "Usinage", 180.0, 30.0f, 40.0f, false);
+        Machine m6 = new Machine("M006", "Viseuse", "Usinage", 110.0, 40.0f, 50.0f, false);
         
         // Ajouter les machines à l'atelier
         atelier.ajouterMachine(m1);
@@ -45,6 +46,7 @@ public class Projet_Info_S2 {
         atelier.ajouterMachine(m3);
         atelier.ajouterMachine(m4);
         atelier.ajouterMachine(m5);
+        atelier.ajouterMachine(m6);
         System.out.println("Machines créées avec succès.");
         
         // 3. Créer des postes et assigner des machines
@@ -60,6 +62,8 @@ public class Projet_Info_S2 {
         
         Poste poste4 = new Poste("P004", "Poste d'usinage", false);
         poste4.ajouterMachine(m4);
+        poste4.ajouterMachine(m6);
+
         
         // Ajouter les postes à l'atelier
         atelier.ajouterPoste(poste1);
@@ -71,7 +75,7 @@ public class Projet_Info_S2 {
         // 4. Créer des opérateurs
         System.out.println("\nCRÉATION DES OPÉRATEURS");
         Operateur op1 = new Operateur("OP001", "Dupont", "Jean", new ArrayList<>(Arrays.asList("M001", "M002")), false);
-        Operateur op2 = new Operateur("OP002", "Martin", "Sophie", new ArrayList<>(Arrays.asList("M003", "M004")), false);
+        Operateur op2 = new Operateur("OP002", "Martin", "Sophie", new ArrayList<>(Arrays.asList("M003", "M004", "M006")), false);
         Operateur op3 = new Operateur("OP003", "Bernard", "Paul", new ArrayList<>(Arrays.asList("M005", "M001", "M002")), false);
         m1.mettreEnPanne();
         
@@ -106,7 +110,7 @@ public class Projet_Info_S2 {
         Operation op_armoire_1 = new Operation("Découpe des panneaux", poste1, 3.0, 150.0, "Découpe", 1);
         Operation op_armoire_2 = new Operation("Usinage des jointures", poste2, 2.0, 160.0, "Usinage", 2);
         Operation op_armoire_3 = new Operation("Perçage pour étagères", poste3, 1.5, 75.0, "Perçage", 3);
-        Operation op_armoire_4 = new Operation("Ponçage et finition", poste4, 2.5, 125.0, "Finition", 4);
+        Operation op_armoire_4 = new Operation("Ponçage et finition", m4, 2.5, 125.0, "Finition", 4);
         
         // Créer une liste d'opérations pour la gamme
         List<Operation> operations_armoire = new ArrayList<>();
@@ -155,7 +159,7 @@ public class Projet_Info_S2 {
         
         // Ajouter une opération à une gamme existante
         System.out.println("\nAjout d'une opération à la gamme de la table basse:");
-        Operation op_table_4 = new Operation("Assemblage final", poste4, 1.0, 50.0, "Assemblage", 4);
+        Operation op_table_4 = new Operation("Assemblage final", m5, 1.0, 50.0, "Assemblage", 4);
         gamme_table.ajouterOperation(op_table_4);
         System.out.println("Opération ajoutée à la gamme G001.");
         
@@ -184,32 +188,32 @@ public class Projet_Info_S2 {
         Operateur op6 = new Operateur("O006", "Martin", "Bob", Arrays.asList("M999"), false); // Non qualifié
 
         // Création d’une machine
-        Machine m6 = new Machine("M006", "Tourneuse numérique", "CNC", 150.0, 10.5f, 20.0f, false);
+        Machine m7 = new Machine("M007", "Tourneuse numérique", "CNC", 150.0, 10.5f, 20.0f, false);
 
         // Affichage
-        System.out.println(m5.afficheEquipement());
+        System.out.println(m7.afficheEquipement());
 
         // Utilisation de la machine avec opérateur qualifié
-        m5.utiliserMachine(op5);
+        m7.utiliserMachine(op5);
         System.out.println(m1.afficheEquipement());
 
         // Libération de la machine
-        m5.libererMachine();
-        System.out.println(m5.afficheEquipement());
+        m7.libererMachine();
+        System.out.println(m7.afficheEquipement());
 
         // Utilisation avec opérateur non qualifié
-        m5.utiliserMachine(op6);  // Devrait refuser
-        System.out.println(m5.afficheEquipement());
+        m7.utiliserMachine(op6);  // Devrait refuser
+        System.out.println(m7.afficheEquipement());
 
         // Mise en panne
-        m5.mettreEnPanne();
-        System.out.println(m5.afficheEquipement());
+        m7.mettreEnPanne();
+        System.out.println(m7.afficheEquipement());
 
         // Tentative d'utilisation pendant panne
-        m5.utiliserMachine(op5);  // Devrait refuser
+        m7.utiliserMachine(op5);  // Devrait refuser
 
         // Remise en service
-        m5.remettreEnService();
+        m7.remettreEnService();
 
         // Mise en maintenance
         m1.mettreEnMaintenance();
