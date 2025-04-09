@@ -40,8 +40,9 @@ public class Operation {
         this.duree = duree;
     }
 
+    // Getter pour récupérer le coût
     public double getCout() {
-        return cout;
+        return getCoutTotal(); // Utilise la méthode de calcul
     }
 
     public void setCout(double cout) {
@@ -79,15 +80,45 @@ public class Operation {
         sb.append("Opération #").append(ordre)
           .append(" [").append(typeOperation).append("] : ").append(nomOp)
           .append(" | Durée : ").append(duree).append("h")
-          .append(" | Coût : ").append(cout).append("€")
+          .append(" | Coût : ").append(getCoutTotal()).append("€")
           .append(" | Equipement associé : ");
-
+        
         // Afficher le statut de l'équipement
         if (equipementAssocie == null) {
             sb.append("Aucun équipement associé");
         } else {
-            sb.append(equipementAssocie.afficheEquipement());  // Appel à la méthode d'affichage d'Equipement
+            sb.append(equipementAssocie.getRefEquipement()); // Pour éviter l'affichage complet de l'équipement
         }
         return sb.toString();
+    }
+    
+    // Méthode pour calculer le coût de l'opération
+    public double getCoutTotal() {
+        double coutTotal = 0.0;
+        
+        if (equipementAssocie == null || equipementAssocie.getIsDeleted()) {
+            return 0.0; // Si pas d'équipement ou supprimé, coût = 0
+        }
+        
+        if (equipementAssocie instanceof Poste poste) {
+            // Si c'est un poste, on calcule le coût en fonction des machines
+            for (Machine machine : poste.getMachines()) {
+                if (!machine.isDeleted() && 
+                    machine.getEtat() != EtatMachine.EN_PANNE && 
+                    machine.getEtat() != EtatMachine.EN_MAINTENANCE) {
+                    // Ajouter le coût horaire de la machine multiplié par la durée
+                    coutTotal += machine.getCout() * this.duree;
+                }
+            }
+        } else if (equipementAssocie instanceof Machine machine) {
+            // Si c'est une machine directe
+            if (!machine.isDeleted() && 
+                machine.getEtat() != EtatMachine.EN_PANNE && 
+                machine.getEtat() != EtatMachine.EN_MAINTENANCE) {
+                coutTotal += machine.getCout() * this.duree;
+            }
+        }
+        
+        return coutTotal;
     }
 }
