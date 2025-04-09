@@ -38,8 +38,6 @@ package com.mycompany.projet_info_s2;
     public boolean getIsDeleted() {
         return isDeleted;
     }
-    
-    
 
     public boolean isDeleted() {
         return isDeleted;
