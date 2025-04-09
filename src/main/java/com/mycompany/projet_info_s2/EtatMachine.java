@@ -9,9 +9,8 @@ package com.mycompany.projet_info_s2;
  * @author doriancacheleux
  */
 public enum EtatMachine {
-    OPERATIONNEL,
     EN_PANNE,
     EN_MAINTENANCE,
     OCCUPEE,
-    DISPONIBLE
+    DISPONIBLE,
 }
