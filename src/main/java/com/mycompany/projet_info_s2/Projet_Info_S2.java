@@ -37,7 +37,7 @@ public class Projet_Info_S2 {
         Machine m2 = new Machine("M002", "Perceuse", "Perçage", 30.0, 15.0f, 25.0f, false);
         Machine m3 = new Machine("M003", "Ponceuse", "Finition", 25.0, 20.0f, 30.0f, false);
         Machine m4 = new Machine("M004", "Tour", "Usinage", 75.0, 25.0f, 35.0f, false);
-        Machine m5 = new Machine("M005", "Fraiseuse", "Usinage", 80.0, 30.0f, 40.0f, false);
+        Machine m5 = new Machine("M005", "Fraiseuse", "Usinage", 180.0, 30.0f, 40.0f, false);
         
         // Ajouter les machines à l'atelier
         atelier.ajouterMachine(m1);
@@ -104,9 +104,9 @@ public class Projet_Info_S2 {
         // 7. Créer des opérations pour la gamme de fabrication de l'armoire
         System.out.println("\nCRÉATION DES OPÉRATIONS POUR LA GAMME DE FABRICATION DE L'ARMOIRE");
         Operation op_armoire_1 = new Operation("Découpe des panneaux", poste1, 3.0, 150.0, "Découpe", 1);
-        Operation op_armoire_2 = new Operation("Usinage des jointures", poste4, 2.0, 160.0, "Usinage", 2);
-        Operation op_armoire_3 = new Operation("Perçage pour étagères", poste2, 1.5, 75.0, "Perçage", 3);
-        Operation op_armoire_4 = new Operation("Ponçage et finition", poste3, 2.5, 125.0, "Finition", 4);
+        Operation op_armoire_2 = new Operation("Usinage des jointures", poste2, 2.0, 160.0, "Usinage", 2);
+        Operation op_armoire_3 = new Operation("Perçage pour étagères", poste3, 1.5, 75.0, "Perçage", 3);
+        Operation op_armoire_4 = new Operation("Ponçage et finition", poste4, 2.5, 125.0, "Finition", 4);
         
         // Créer une liste d'opérations pour la gamme
         List<Operation> operations_armoire = new ArrayList<>();
