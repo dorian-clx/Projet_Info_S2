@@ -155,24 +155,29 @@ public class Gamme {
     }
 
     // Méthode pour mettre à jour les équipements associés à une opération
-    private void updateEquipements(Operation op) {
-        if (op.getEquipementAssocie() != null) {
-            listePostes.add((Poste) op.getEquipementAssocie());
-            
-            // Ajouter les machines associées au poste
-            if (op.getEquipementAssocie() instanceof Poste poste) {
-                for (Machine machine : poste.getMachines()) {
-                    listeMachines.add(machine);
-                    
-}
-}
-            else if (op.getEquipementAssocie() instanceof Machine machine){
-                if (!machine.isDeleted() && machine.isDeleted()) {
-                    listeMachines.add(machine);
-                    }
+private void updateEquipements(Operation op) {
+    Equipement equip = op.getEquipementAssocie();
+    if (equip != null && !equip.isDeleted()) {
+        // Si l'équipement est un Poste, on l'ajoute à la liste des postes
+        if (equip instanceof Poste poste) {
+            if (!listePostes.contains(poste)) {
+                listePostes.add(poste);
             }
+            // Ajouter les machines du poste, en vérifiant qu'elles ne sont pas supprimées
+            for (Machine machine : poste.getMachines()) {
+                if (!machine.isDeleted() && !listeMachines.contains(machine)) {
+                    listeMachines.add(machine);
                 }
             }
+        }
+        // Si l'équipement est une Machine seule, on l'ajoute à la liste des machines
+        else if (equip instanceof Machine machine) {
+            if (!machine.isDeleted() && !listeMachines.contains(machine)) {
+                listeMachines.add(machine);
+            }
+        }
+    }
+}
 
     // Méthodes de calcul
     // Méthode pour calculer la durée totale de la gamme
