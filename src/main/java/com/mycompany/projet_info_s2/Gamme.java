@@ -162,50 +162,21 @@ public class Gamme {
             // Ajouter les machines associées au poste
             if (op.getEquipementAssocie() instanceof Poste poste) {
                 for (Machine machine : poste.getMachines()) {
-                    if (!machine.isDeleted()) {
+                    listeMachines.add(machine);
+                    
+}
+}
+            else if (op.getEquipementAssocie() instanceof Machine machine){
+                if (!machine.isDeleted() && machine.isDeleted()) {
                     listeMachines.add(machine);
                     }
+            }
                 }
             }
-        }
-    }
 
     // Méthodes de calcul
     // Méthode pour calculer la durée totale de la gamme
     public double dureeGamme() {
-    if (isDeleted) {
-        return 0.0;
-    }
-
-    double total = 0;
-    for (Operation op : listeOperations) {
-        // Vérifier si l'opération est réalisable
-        if (op.getEquipementAssocie().getIsDeleted() || 
-            op.getEquipementAssocie() instanceof Poste poste && poste.getIsDeleted()) {
-            // Si le poste ou l'équipement est supprimé, on ignore l'opération
-            continue;
-        }
-
-        // Vérifier l'état de la machine associée
-        boolean operationRealisable = true;
-        if (op.getEquipementAssocie() instanceof Poste poste) {
-            for (Machine machine : poste.getMachines()) {
-                if (machine.isDeleted() || machine.getEtat() == EtatMachine.EN_PANNE || machine.getEtat() == EtatMachine.EN_MAINTENANCE) {
-                    operationRealisable = false;  // Une machine en panne ou en maintenance empêche l'opération
-                    break;
-                }
-            }
-        }
-
-        if (operationRealisable) {
-            total += op.getDuree();
-        }
-    }
-    return total;
-}
-
-    // Méthode pour calculer le coût total de la gamme
-   public double coutGamme() {
     if (isDeleted) {
         return 0.0;
     }
@@ -241,8 +212,22 @@ public class Gamme {
         }
 
         if (operationRealisable) {
-            total += op.getCout();
+            total += op.getDuree();
         }
+    }
+    return total;
+}
+
+    // Méthode mise à jour pour calculer le coût total de la gamme
+public double coutGamme() {
+    if (isDeleted) {
+        return 0.0;
+    }
+
+    double total = 0.0;
+    for (Operation op : listeOperations) {
+        // Utilise la méthode getCoutTotal() de l'opération
+        total += op.getCoutTotal();
     }
 
     return total;
