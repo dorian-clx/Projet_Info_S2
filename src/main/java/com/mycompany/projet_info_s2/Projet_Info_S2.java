@@ -6,6 +6,8 @@ package com.mycompany.projet_info_s2;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Arrays;
+import java.util.Map;
+import com.mycompany.projet_info_s2.AnalyseFiabilite.Statistiques;
 
 /**
  *
@@ -15,7 +17,7 @@ public class Projet_Info_S2 {
 
     public static void main(String[] args) {
        System.out.println("=== DÉMARRAGE DU SYSTÈME DE GESTION DE FABRICATION ===\n");
-        
+
         // Créer un atelier
         Atelier atelier = new Atelier();
         
@@ -180,6 +182,13 @@ public class Projet_Info_S2 {
         // 12. Afficher l'état final de l'atelier
         System.out.println("\n=== ÉTAT FINAL DE L'ATELIER ===");
         atelier.afficherAtelier();
+        
+                // 13. Analyse de fiabilité des machines
+       System.out.println("\n=== ANALYSE DE FIABILITÉ DES MACHINES ===");
+String cheminFichier = "src/data/suiviMaintenance.txt"; 
+Map<String, AnalyseFiabilite.Statistiques> stats = AnalyseFiabilite.analyserFichier(cheminFichier);
+AnalyseFiabilite.afficherStatistiques(stats);
+
         
         System.out.println("\n=== FIN DU TEST DU SYSTÈME DE GESTION DE FABRICATION ===");
         
